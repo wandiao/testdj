@@ -2,6 +2,12 @@
 
 from __future__ import unicode_literals
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import (
+    GenericForeignKey,
+    GenericRelation,
+)
+
 from django.db import models
 
 from .abstract_models import (
@@ -174,4 +180,74 @@ class Depot(models.Model):
 
   class Meta:
     verbose_name = u'库房'
+    verbose_name_plural = verbose_name
+
+class Profile(DeletedMixin, BaseModel):
+
+  RANK_CHOICES = (
+    ('platform_company', u'总平台公司'),
+    ('main_factory', u'主机厂'),
+    ('disivion', u'事业部'),
+    ('commercial', u'商务处'),
+    ('dealer', u'经销商'),
+    ('major', u'大客户'),
+  )
+  ROLE_CHOICES = (
+    ('super_admin', u'超级管理员'),
+    ('admin', u'管理员'),
+    ('worker', u'业务员'),
+    ('warekeeper', u'仓库管理员')
+  )
+  content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+  object_id = models.PositiveIntegerField()
+  content_object = GenericForeignKey('content_type', 'object_id')
+  rank = models.CharField(
+    u'层级',
+    max_length=20,
+    choices=RANK_CHOICES,
+    help_text=u'层级'
+  )
+  role = models.CharField(
+    u'角色',
+    max_length=20,
+    choices=ROLE_CHOICES,
+    help_text=u'角色',
+  )
+  user = models.OneToOneField(
+    'auth.User',
+    verbose_name=u'用户',
+    on_delete=models.PROTECT,
+    help_text=u'用户',
+  )
+  phone = models.CharField(
+    u'电话',
+    max_length=20,
+    help_text=u'电话',
+  )
+  name = models.CharField(
+    u'姓名',
+    max_length=20,
+    help_text=u'姓名'
+  )
+  phone_verified = models.BooleanField(
+    u'电话是否已验证',
+    default=False,
+    blank=True,
+    help_text=u'电话是否已验证',
+  )
+  depot = models.ForeignKey(
+    'polls.depot',
+    verbose_name=u'负责仓库',
+    blank=True,
+    null=True,
+    related_name='depot_keepers',
+    on_delete=models.PROTECT,
+    help_text=u'负责仓库',
+  )
+
+  def __unicode__(self):
+    return self.name
+  
+  class Meta:
+    verbose_name = u'个人信息'
     verbose_name_plural = verbose_name

@@ -267,3 +267,118 @@ class Supplier(BaseModel):
   class Meta:
     verbose_name = u'设备供应商'
     verbose_name_plural = verbose_name
+
+class DeviceRecord(models.Model):
+  RECORD_TYPE_CHOICE = (
+    ('unknown', u'未选择'),
+    ('depot_out', u'入库记录'),
+    ('depot_in', u'入库记录'),
+    ('send_back', u'寄回记录'),
+    ('sell', u'出让记录'),
+    ('binding', u'绑定记录'),
+    ('unbinding', u'解绑记录'),
+  )
+  TRANSPORT_TYPE = (
+    ('unknown', u'未选择'),
+    ('send_off', u'总库寄出'),
+    ('send_back', u'经销商寄回'),
+    ('sell', u'出让'),
+  )
+
+  operator_account = models.CharField(
+    u'操作员账号',
+    max_length=20,
+    null=True,
+    help_text=u'操作员账号',
+  )
+  record_time = models.DateTimeField(
+    u'记录时间',
+    blank=True,
+    null=True,
+    help_text=u'记录时间',
+  )
+  device_id = models.CharField(
+    u'设备ID',
+    max_length=20,
+    help_text=u'设备ID',
+  )
+  sim_id = models.CharField(
+    u'SIM ID',
+    max_length=20,
+    default='',
+    help_text=u'SIM ID',
+  )
+  car_identification_num = models.CharField(
+    u'车辆识别码',
+    max_length=30,
+    blank=True,
+    help_text=u'车辆识别码',
+  )
+  bargain_num = models.CharField(
+    u'出让合同编号',
+    max_length=30,
+    blank=True,
+    help_text=u'出让合同编号',
+  )
+  remarks = models.TextField(
+    u'备注',
+    blank=True,
+    help_text=u'备注',
+  )
+  transport_type = models.CharField(
+    u'在途类型',
+    max_length=15,
+    default='unknown',
+    choices=TRANSPORT_TYPE,
+    help_text=u'在途类型',
+  )
+  record_type = models.CharField(
+    u'记录类型',
+    max_length=20,
+    default='unknown',
+    choices=RECORD_TYPE_CHOICE,
+    help_text=u'记录类型',
+  )
+  main_factory_name = models.CharField(
+    u'所属主机厂',
+    max_length=50,
+    blank=True,
+    help_text=u'所属主机厂',
+  )
+  division_name = models.CharField(
+    u'所属事业部',
+    max_length=50,
+    blank=True,
+    help_text=u'所属事业部',
+  )
+  commercial_name = models.CharField(
+    u'所属商务处',
+    max_length=50,
+    blank=True,
+    help_text=u'所属商务处',
+  )
+  dealer_name = models.CharField(
+    u'经销商',
+    max_length=50,
+    blank=True,
+    help_text=u'经销商',
+  )
+  dealer_phone = models.CharField(
+    u'经销商联系方式',
+    max_length=15,
+    blank=True,
+    help_text=u'经销商联系方式',
+  )
+
+  @property
+  def device(self):
+    return Device.objects.filter(device_id=self.device_id).first()
+
+  def __unicode__(self):
+    return u'设备%s-%s' % (self.device_id, self.get_record_type_display())
+
+  class Meta:
+    verbose_name = u'设备记录'
+    verbose_name_plural = verbose_name
+    ordering = ['-record_time']
+

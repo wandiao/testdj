@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^device/', include('polls.apps.device.urls',  namespace='device')),
+    url(r'^auth/', include('polls.apps.auth.urls')),
 ]
